@@ -1,5 +1,5 @@
 <html>
-    <body ng-app="myApp" ng-controller="myCtrl" ng-model="myaccount" ng-model="order" >
+    <body ng-app="myApp" ng-controller="myCtrl">
     <table id='result' style="text-align: center;" class="h2">
         <tr>
             <td>TESTNAME </td>
@@ -21,6 +21,18 @@
     <br>
     <div> All Trades <br>{{ trades }} </div>
 
+    <div> Rate <br>
+    {{ rates }} </div>
+    <button class="btn" ng-click="getRate()">Update Rate</button>
+    <div> Historical Rate <br>
+    {{ historicalRates }} </div>
+    <button class="btn" ng-click="getHistoricalRate()">Get Historical Rate</button>
+
+    <div> Transactions <br>
+    {{ transList }} </div>
+    <button class="btn" ng-click="getTransactionList(myaccount.accountId)">Get Transaction</button>
+
+    <select ng-model="instruments" ng-options="o.instrument as o.displayName for o in instruments" bs-selectbox="Select Item"></select>
     </body>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.js"></script>
 <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.3/angular.js"></script>

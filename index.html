@@ -1,42 +1,88 @@
 <html>
-    <body ng-app="myApp" ng-controller="myCtrl">
-    <table id='result' style="text-align: center;" class="h2">
-        <tr>
-            <td>TESTNAME </td>
-            <td>STATUS</td>
-            <td>Value</td>
-        </tr>
-    </table>
 
-    <div> Account Id <br>
-    {{ myaccount }} </div>
+<head>
+    <link href="http://getbootstrap.com/2.3.2/assets/css/bootstrap.css" rel="stylesheet">
+    <link href="http://getbootstrap.com/2.3.2/assets/css/bootstrap-responsive.css" rel="stylesheet">
+</head>
+
+<body ng-app="myApp" ng-controller="myCtrl as mc">
+
+    <div> Account Id
+        <br> {{ myaccount }} </div>
     <br>
-    <button class="btn" ng-click="createAccount()">createAccount</button>
+    <select id="selectInst" ng-model="currencyPair" ng-options="o.instrument as o.displayName for o in instruments" bs-selectbox="Select Item" ng-change="updateCurrency(currencyPair)"></select>
+    <select ng-model="side" ng-options="opr as opr for opr in operations" bs-selectbox="Buy or Sell"></select>
+    <br>
+    <div class="h2"> Order Id
+        <div class="col-sm-4">
+            <ul class="list-group">
+                <li class="list-group-item" ng-repeat="o in order">{{o}}</li>
+            </ul>
+        </div>
+    </div>
+    <button class="btn" ng-click="openMarketOrder(1,side)">openMarketOrder</button>
 
     <br>
-    <div> Order Id <br>
-    {{ order }} </div>
-    <button class="btn" ng-click="openMarketOrder(myaccount.accountId)">openMarketOrder</button>
-
+    <div ng-controller="myCtrl as mc" >
+    <form>
+        <input type="text" name="trailingStop" ng-model="trailingStop">Trailing Stop<br/>
+        <input type="text" name="takeProfit"   ng-model="takeProfit">Profit<br/>
+        <input type="text" name="expiry"       ng-model="expiry">Expiry<br/>
+        <input type="text" name="price"        ng-model="price">Limit Price<br/>
+    </form>
+    </div>
+    <button class="btn" ng-click="openLimitOrder(1,side,expiry,price,takeProfit,trailingStop)">openLimitOrder</button>
     <br>
-    <div> All Trades <br>{{ trades }} </div>
+    <div>
+        <h3> All Trades</h3>
+        <table class="table table-striped">
+            <thead>
+                <th>Units</th>
+                <th>Side</th>
+                <th>Instrument</th>
+                <th>Time</th>
+                <th>Price</th>
+                <th>TP</th>
+            </thead>
+            <tr ng-repeat="trade in trades.trades">
+                <td>{{trade.units}}</td>
+                <td>{{trade.side}}</td>
+                <td>{{trade.instrument}}</td>
+                <td>{{trade.time | date:'MM/dd/yyyy h:mm:ss a'}}</td>
+                <td>{{trade.price}}</td>
+                <td>{{trade.takeProfit|currency}}</td>
+            </tr>
+        </table>
+    </div>
 
-    <div> Rate <br>
-    {{ rates }} </div>
-    <button class="btn" ng-click="getRate()">Update Rate</button>
-    <div> Historical Rate <br>
-    {{ historicalRates }} </div>
-    <button class="btn" ng-click="getHistoricalRate()">Get Historical Rate</button>
+    <div> Rate
+        <br>
+    </div>
+    <div class="col-sm-4">
+        <ul class="list-group">
+            <li class="list-group-item" ng-repeat="rate in rates">{{rate}}</li>
+        </ul>
+    </div>
 
-    <div> Transactions <br>
-    {{ transList }} </div>
-    <button class="btn" ng-click="getTransactionList(myaccount.accountId)">Get Transaction</button>
+    <div> Historical Rate
+        <br>
+        <div class="col-sm-4">
+            <ul class="list-group">
+                <li class="list-group-item" ng-repeat="rate in historicalRates">{{rate}}</li>
+            </ul>
+        </div>
+    </div>
 
-    <select ng-model="instruments" ng-options="o.instrument as o.displayName for o in instruments" bs-selectbox="Select Item"></select>
-    </body>
+
+    <div> Transactions
+        <br> {{ transList }} </div>
+    <button class="btn" ng-click="getTransactionList()">Get Transaction</button>
+
+</body>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.js"></script>
 <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.3/angular.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/json2/20121008/json2.js"></script>
 <script src="oanda.js"></script>
 <script src="trade.js"></script>
+
 </html>

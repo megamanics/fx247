@@ -11,6 +11,7 @@
         <br> {{ myaccount }} </div>
     <br>
     <select id="selectInst" ng-model="currencyPair" ng-options="o.instrument as o.displayName for o in instruments" bs-selectbox="Select Item" ng-change="updateCurrency(currencyPair)"></select>
+    <br>
     <select ng-model="side" ng-options="opr as opr for opr in operations" bs-selectbox="Buy or Sell"></select>
     <br>
     <div class="h2"> Order Id
@@ -25,13 +26,11 @@
     <br>
     <div ng-controller="myCtrl as mc" >
     <form>
-        <input type="text" name="trailingStop" ng-model="trailingStop">Trailing Stop<br/>
-        <input type="text" name="takeProfit"   ng-model="takeProfit">Profit<br/>
-        <input type="text" name="expiry"       ng-model="expiry">Expiry<br/>
-        <input type="text" name="price"        ng-model="price">Limit Price<br/>
+        <input type="text" name="NoOfOrders"   ng-model="NoOfOrders">No of Orders<br/>
+        <input type="text" name="PipDistance"  ng-model="pipDiff">Pip Distance<br/>
     </form>
+    <button class="btn" ng-click="openFixedPipOrder(currencyPair,NoOfOrders,side,pipDiff)">Open Fixed Pip Orders</button>
     </div>
-    <button class="btn" ng-click="openLimitOrder(1,side,expiry,price,takeProfit,trailingStop)">openLimitOrder</button>
     <br>
     <div>
         <h3> All Trades</h3>

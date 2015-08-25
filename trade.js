@@ -4,6 +4,9 @@ var app = angular.module('myApp', []);
 var currencyPair = 'USD_ZAR';
 var acctId = 0;
 var operations = ["buy","sell"];
+var NoOfOrders = 1;
+var pipDiff = 100;
+var gridOffset = 0;
 
 
 $(document).ready(function() {
@@ -21,10 +24,9 @@ app.controller('myCtrl', function($scope) {
 			acctId = response.accountId;
 			$scope.operations = operations;
 			$scope.side=operations[0];
-			$scope.trailingStop = 100;
-			$scope.takeProfit = 10;
-			$scope.expiry = 1;
-			$scope.price = 1002;
+			var expiry = new Date();
+			expiry.setDate(expiry.getDate() + 60);
+			$scope.expiry = expiry.toJSON();0.
 			$scope.$apply();
 		});
 	};
@@ -50,6 +52,43 @@ app.controller('myCtrl', function($scope) {
 			$scope.$apply();
 		});
 	};
+	
+	$scope.openFixedPipOrder = function(currencyPair,units,side,pipdiff) {
+		var expiry = new Date();
+		expiry.setDate(expiry.getDate() + 60);
+		var expiryDate = expiry.toJSON();
+		var tp = 0;
+		var ts = 10;
+		var price = $scope.getRate(currencyPair)[0];
+		var limitPrice = price.bid;
+		//startrate = ( Ask + Point*GridSize/2 ) / Point / GridSize
+		var Ask = price.ask;
+		var Point = $scope.pip;
+		var GridSize = pipdiff;
+		var GridSteps = units;
+		var startrate = ( Ask + Point*GridSize/2 ) / Point / GridSize;
+        var    k = startrate ;
+        k = k * GridSize ;
+        startrate = k * Point - GridSize*GridSteps/2*Point;
+        var traderate = startrate;
+        var rate;
+		console.log("start rate=" + startrate);
+		for (var i = 0; i < units; i++) {
+			if(side == $scope.operations[0])
+			{
+				traderate   = startrate + i*Point*GridSize + gridOffset*Point;
+				rate  = $scope.sround(traderate,Point,GridSize);
+				tp 			= traderate + pipdiff*Point;
+			} else 
+			{
+				traderate 	= startrate + i*Point*GridSize + gridOffset*Point;
+				rate  = $scope.sround(traderate,Point,GridSize);
+				tp 			= traderate - pipdiff*Point;
+			}
+			console.log(i + ' trade =' + rate);
+			$scope.openLimitOrder(1,side,expiryDate,rate,tp,ts);
+			}
+		};
 
 	$scope.openLimitOrder = function(units,side,expiry,price,takeProfit,trailingStop) {
 		OANDA.order.open(acctId, currencyPair, units, side, 'limit', {
@@ -75,9 +114,10 @@ app.controller('myCtrl', function($scope) {
 
 	$scope.getRate = function getRates(myCurrencyPair) {
 		OANDA.rate.quote([myCurrencyPair], function(response) {
-			$scope.rates = response;
+			$scope.rates = response.prices;
 			$scope.$apply();
 		});
+		return $scope.rates;
 	};
 
 	$scope.getHistoricalRate = function getHistory(myCurrencyPair) {
@@ -91,8 +131,13 @@ app.controller('myCtrl', function($scope) {
 	};
 
 	$scope.updateCurrency = function (myCurrencyPair) {
-		console.log(myCurrencyPair);
 		currencyPair = myCurrencyPair;
+		for (var i in $scope.instruments) {
+  			if ($scope.instruments[i].instrument == currencyPair) {
+    			console.log(currencyPair + " pip value = " + $scope.instruments[i].pip);
+    			$scope.pip = $scope.instruments[i].pip;
+  			}
+		}
 		$scope.getRate(myCurrencyPair);
 		$scope.getHistoricalRate(myCurrencyPair);
 	};
@@ -110,7 +155,6 @@ app.controller('myCtrl', function($scope) {
 	$scope.getInstruments = function getInstruments() {
 		OANDA.rate.instruments(['pip'], [''], function(response) {
 			$scope.instruments = response.instruments;
-			//$scope.currencyPair= response.instruments[0].instrument;
 			$scope.$apply();
 		});
 	};
@@ -124,6 +168,21 @@ app.controller('myCtrl', function($scope) {
 	$scope.alert = function(msg) {
 		alert(msg);
 	};
+	
+	$scope.round = function round(p,point) {
+		var iPoint = Math.round(1/point);
+		var returnv = Math.round(p*iPoint)/iPoint;
+		console.log(p + ">" + returnv);
+		return returnv;
+	}
+	
+	$scope.sround = function round(p,point,size) {
+		var rp = point * size;
+		var iPoint = Math.round(1/rp);
+		var returnv = Math.round(p*iPoint)/iPoint;
+		console.log(p + "," + point + ">" + iPoint + "," + returnv);
+		return returnv;
+	}
 
 });
 

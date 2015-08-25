@@ -73,22 +73,26 @@ app.controller('myCtrl', function($scope) {
         var traderate = startrate;
         var rate;
 		console.log("start rate=" + startrate);
-		for (var i = 0; i < units; i++) {
+		for (var i = 0; i < units; i++) 
+		{
 			if(side == $scope.operations[0])
 			{
 				traderate   = startrate + i*Point*GridSize + gridOffset*Point;
-				rate  = $scope.sround(traderate,Point,GridSize);
-				tp 			= traderate + pipdiff*Point;
+				rate  		= $scope.sround(traderate,Point,GridSize);
+				tp 			= rate + pipdiff*Point;
 			} else 
 			{
 				traderate 	= startrate + i*Point*GridSize + gridOffset*Point;
-				rate  = $scope.sround(traderate,Point,GridSize);
-				tp 			= traderate - pipdiff*Point;
+				rate  		= $scope.sround(traderate,Point,GridSize);
+				tp 			= rate - pipdiff*Point;
 			}
 			console.log(i + ' trade =' + rate);
 			$scope.openLimitOrder(1,side,expiryDate,rate,tp,ts);
-			}
-		};
+		}
+		setTimeout(function(){ 
+			$scope.getTransactionList(currencyPair);
+    	}, 500);  
+	};
 
 	$scope.openLimitOrder = function(units,side,expiry,price,takeProfit,trailingStop) {
 		OANDA.order.open(acctId, currencyPair, units, side, 'limit', {
@@ -98,8 +102,6 @@ app.controller('myCtrl', function($scope) {
 			'price':price
 		}, function(response) {
 			$scope.order = response;
-			$scope.listTrade();
-			$scope.$apply();
 		});
 	};
 
@@ -140,12 +142,13 @@ app.controller('myCtrl', function($scope) {
 		}
 		$scope.getRate(myCurrencyPair);
 		$scope.getHistoricalRate(myCurrencyPair);
+		$scope.getTransactionList(myCurrencyPair);
 	};
 
-	$scope.getTransactionList = function transactionList() {
+	$scope.getTransactionList = function transactionList(myCurrencyPair) {
 		OANDA.transaction.list(acctId, {
 			'ids': '2347',
-			'instrument': currencyPair
+			'instrument': myCurrencyPair
 		}, function(response) {
 			$scope.transList = response;
 			$scope.$apply();
@@ -169,18 +172,11 @@ app.controller('myCtrl', function($scope) {
 		alert(msg);
 	};
 	
-	$scope.round = function round(p,point) {
-		var iPoint = Math.round(1/point);
-		var returnv = Math.round(p*iPoint)/iPoint;
-		console.log(p + ">" + returnv);
-		return returnv;
-	}
-	
 	$scope.sround = function round(p,point,size) {
 		var rp = point * size;
 		var iPoint = Math.round(1/rp);
 		var returnv = Math.round(p*iPoint)/iPoint;
-		console.log(p + "," + point + ">" + iPoint + "," + returnv);
+		console.log(p + ">" + returnv);
 		return returnv;
 	}
 

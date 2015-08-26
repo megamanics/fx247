@@ -7,6 +7,8 @@ var operations = ["buy","sell"];
 var NoOfOrders = 1;
 var pipDiff = 100;
 var gridOffset = 0;
+var OrderCount = [1,5,10,15,20,50,100];
+var PipCount   = [1,10,100,1000];
 
 
 $(document).ready(function() {
@@ -23,6 +25,11 @@ app.controller('myCtrl', function($scope) {
 			$scope.myaccount = response;
 			acctId = response.accountId;
 			$scope.operations = operations;
+			$scope.OrderCount 	= OrderCount;
+			$scope.PipCount		= PipCount;
+			$scope.currencyPair = currencyPair;
+			$scope.pipDiff 		= 10;
+			$scope.NoOfOrders	= 5;
 			$scope.side=operations[0];
 			var expiry = new Date();
 			expiry.setDate(expiry.getDate() + 60);
@@ -61,7 +68,6 @@ app.controller('myCtrl', function($scope) {
 		var ts = 10;
 		var price = $scope.getRate(currencyPair)[0];
 		var limitPrice = price.bid;
-		//startrate = ( Ask + Point*GridSize/2 ) / Point / GridSize
 		var Ask = price.ask;
 		var Point = $scope.pip;
 		var GridSize = pipdiff;

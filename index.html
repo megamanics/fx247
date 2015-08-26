@@ -8,28 +8,29 @@
 <body ng-app="myApp" ng-controller="myCtrl as mc">
 
     <div> Account Id
-        <br> {{ myaccount }} </div>
+        <br> {{ myaccount }} 
+    </div>
     <br>
     <select id="selectInst" ng-model="currencyPair" ng-options="o.instrument as o.displayName for o in instruments" bs-selectbox="Select Item" ng-change="updateCurrency(currencyPair)"></select>
     <br>
     <select ng-model="side" ng-options="opr as opr for opr in operations" bs-selectbox="Buy or Sell"></select>
     <br>
-    <div class="h2"> Order Id
+    <div ng-click="openMarketOrder(1,side)" class="h1"> Click to Open Market Order
         <div class="col-sm-4">
             <ul class="list-group">
                 <li class="list-group-item" ng-repeat="o in order">{{o}}</li>
             </ul>
         </div>
     </div>
-    <button class="btn" ng-click="openMarketOrder(1,side)">openMarketOrder</button>
-
     <br>
-    <div ng-controller="myCtrl as mc" >
-    <form>
-        <input type="text" name="NoOfOrders"   ng-model="NoOfOrders">No of Orders<br/>
-        <input type="text" name="PipDistance"  ng-model="pipDiff">Pip Distance<br/>
-    </form>
-    <button class="btn" ng-click="openFixedPipOrder(currencyPair,NoOfOrders,side,pipDiff)">Open Fixed Pip Orders</button>
+    <div ng-controller="myCtrl as mc">
+        <form>
+            No of Orders
+            <select ng-model="NoOfOrders" ng-options="o as o for o in OrderCount" bs-selectbox="no of orders"></select>
+            Pip Difference
+            <select ng-model="pipDiff" ng-options="p as p for p in PipCount" bs-selectbox="pip difference"></select>
+        </form>
+        <button class="btn" ng-click="openFixedPipOrder(currencyPair,NoOfOrders,side,pipDiff)">Open Fixed Pip Orders</button>
     </div>
     <br>
     <div>
@@ -54,16 +55,16 @@
         </table>
     </div>
 
-    <div> Rate
+    <div ng-click="getRate(currencyPair)"> Rate
         <br>
-    </div>
-    <div class="col-sm-4">
-        <ul class="list-group">
-            <li class="list-group-item" ng-repeat="rate in rates">{{rate}}</li>
-        </ul>
+        <div class="col-sm-4">
+            <ul class="list-group">
+                <li class="list-group-item" ng-repeat="rate in rates">{{rate}}</li>
+            </ul>
+        </div>
     </div>
 
-    <div> Historical Rate
+    <div ng-click='getHistoricalRate(currencyPair)'> Historical Rate
         <br>
         <div class="col-sm-4">
             <ul class="list-group">
@@ -73,8 +74,8 @@
     </div>
 
 
-    <div> Transactions
-        <br> {{ transList }} 
+    <div ng-click="getTransactionList(currencyPair)"> Transactions
+        <br> {{ transList }}
     </div>
 
 </body>

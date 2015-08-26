@@ -92,12 +92,43 @@ app.controller('myCtrl', function($scope) {
 				rate  		= $scope.sround(traderate,Point,GridSize);
 				tp 			= rate - pipdiff*Point;
 			}
-			console.log(i + ' trade =' + rate);
-			$scope.openLimitOrder(1,side,expiryDate,rate,tp,ts);
+			var orderExist = $scope.checkOrderExist(rate);
+			if(orderExist) {
+				console.log("["+ i + "] Order exists @ " + rate);
+			}else{
+				console.log("["+ i + '] Trade opened @ ' + rate);
+				$scope.openLimitOrder(1,side,expiryDate,rate,tp,ts);
+			}
 		}
 		setTimeout(function(){ 
 			$scope.getTransactionList(currencyPair);
     	}, 500);  
+	};
+	
+	$scope.checkOrderExist = function(p) {
+		var lengthOfTransactions = $scope.transList.lengthOfTransactions;
+		if(lengthOfTransactions < 1)
+		{
+			$scope.getTransactionList(currencyPair);
+		}
+		lengthOfTransactions = $scope.transList.lengthOfTransactions;
+		if(lengthOfTransactions > 0)
+		{
+			if($scope.transList.transactions[0].instrument != currencyPair)
+			{
+				$scope.getTransactionList(currencyPair);
+			}
+		}
+		var transList = $scope.transList.transactions;
+		for (var i = 0; i < transList.length; i++) {
+			var mPrice 		= transList[i].price;
+			var currency 	= transList[i].instrument;
+			if((mPrice == p) && (currency == currencyPair))
+			{
+				return true;
+			}
+		}
+		return false;
 	};
 
 	$scope.openLimitOrder = function(units,side,expiry,price,takeProfit,trailingStop) {
@@ -182,7 +213,7 @@ app.controller('myCtrl', function($scope) {
 		var rp = point * size;
 		var iPoint = Math.round(1/rp);
 		var returnv = Math.round(p*iPoint)/iPoint;
-		console.log(p + ">" + returnv);
+		//console.log(p + ">" + returnv);
 		return returnv;
 	}
 

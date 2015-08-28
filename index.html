@@ -32,8 +32,16 @@
         </form>
         <button class="btn" ng-click="openFixedPipOrder(currencyPair,NoOfOrders,side,pipDiff)">Open Fixed Pip Orders</button>
     </div>
+    <div ng-click="getRate(currencyPair)"> Rate
+        <br>
+        <div class="col-sm-4">
+            <ul class="list-group">
+                <li class="list-group-item" ng-repeat="rate in rates">{{rate.bid}}</li>
+            </ul>
+        </div>
+    </div>
     <br>
-    <div>
+    <div ng-click="listTrade()">
         <h3> All Trades</h3>
         <table class="table table-striped">
             <thead>
@@ -55,27 +63,20 @@
         </table>
     </div>
 
-    <div ng-click="getRate(currencyPair)"> Rate
-        <br>
-        <div class="col-sm-4">
-            <ul class="list-group">
-                <li class="list-group-item" ng-repeat="rate in rates">{{rate}}</li>
-            </ul>
-        </div>
-    </div>
 
-    <div ng-click='getHistoricalRate(currencyPair)'> Historical Rate
-        <br>
-        <div class="col-sm-4">
-            <ul class="list-group">
-                <li class="list-group-item" ng-repeat="rate in historicalRates">{{rate}}</li>
-            </ul>
-        </div>
-    </div>
-
-
-    <div ng-click="getTransactionList(currencyPair)"> Transactions
-        <br> {{ transList }}
+    <div ng-click="getOrders(currencyPair)"> <h2>Orders</h2>
+        <table class="table table-striped">
+            <thead>
+                <th>Time</th>
+                <th>Price</th>
+                <th>Type</th>
+            </thead>
+            <tr ng-repeat="order in orders.orders">
+                <td>{{order.time | date:'MM/dd/yyyy h:mm:ss a'}}</td>
+                <td>{{order.units}}@{{order.price}}</td>
+                <td>{{order.type}}</td>
+            </tr>
+        </table>
     </div>
 
 </body>

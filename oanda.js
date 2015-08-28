@@ -1,11 +1,12 @@
 var OANDA = OANDA || {};
 
-OANDA.baseURL = OANDA.baseURL || "http://api-sandbox.oanda.com";
+//OANDA.baseURL = OANDA.baseURL || "http://api-sandbox.oanda.com";
+OANDA.baseURL = OANDA.baseURL || "https://api-fxpractice.oanda.com";
 
 
 OANDA.auth = OANDA.auth || {};
-OANDA.auth.enabled = OANDA.auth.enabled || false;
-OANDA.auth.token = OANDA.auth.token || "";
+OANDA.auth.enabled = OANDA.auth.enabled || true;
+OANDA.auth.token = OANDA.auth.token || "ca697e6770b3b5ddd36fb3e1f2c62dbb-8cc2f31d56d29b0a30f3c57c12ed1a7f";
 
 var setAuthHeader = function(xhr) {
     xhr.setRequestHeader("Authorization", "Bearer " + OANDA.auth.token);
@@ -235,9 +236,8 @@ OANDA.rate = OANDA.rate || {};
  * Accepts optional parameters:
  * fields => array of strings
  */
-OANDA.rate.instruments = function(accountId, fields, callback) {
-    var fieldStr = fields.join(',');
-    var data = fieldStr ? { "fields" : fieldStr , "accountId" : accountId} : {};
+OANDA.rate.instruments = function(accountId,  callback) {
+    var data = {"accountId" : accountId};
     OANDA.api("/v1/instruments", 'GET', data, callback);
 };
 

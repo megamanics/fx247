@@ -8,7 +8,7 @@
 <body ng-app="myApp" ng-controller="myCtrl as mc">
 
     <div> Account Id
-        <br> {{ myaccount }} 
+        <br> {{ myaccount }}
     </div>
     <br>
     <select id="selectInst" ng-model="currencyPair" ng-options="o.instrument as o.displayName for o in instruments" bs-selectbox="Select Item" ng-change="updateCurrency(currencyPair)"></select>
@@ -64,14 +64,15 @@
     </div>
 
 
-    <div ng-click="getOrders(currencyPair)"> <h2>Orders</h2>
+    <div >
+        <h2 ng-click="getOrders(currencyPair)">Orders</h2>
         <table class="table table-striped">
-            <thead>
+            <thead ng-click="getOrders(currencyPair)">
                 <th>Time</th>
                 <th>Price</th>
                 <th>Type</th>
             </thead>
-            <tr ng-repeat="order in orders.orders">
+            <tr ng-repeat="order in orders.orders" ng-click="orderClosePopUp('{{order.id}}')">
                 <td>{{order.time | date:'MM/dd/yyyy h:mm:ss a'}}</td>
                 <td>{{order.units}}@{{order.price}}</td>
                 <td>{{order.type}}</td>
@@ -79,11 +80,13 @@
         </table>
     </div>
 
+    <DIV id='PopUp' style='display: none; position: absolute; left: 100px; top: 50px; border: solid black 1px; padding: 10px; background-color: rgb(200,100,100); text-align: justify; font-size: 12px; width: 135px;' onmouseover="document.getElementById('PopUp').style.display = 'none' ">
+        <SPAN id='PopUpText'>TEXT</SPAN>
+    </DIV>
 </body>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.js"></script>
 <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.3/angular.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/json2/20121008/json2.js"></script>
 <script src="oanda.js"></script>
 <script src="trade.js"></script>
-
 </html>

@@ -41,7 +41,6 @@ app.controller('myCtrl', function($scope) {
 	$scope.NoOfOrders = 5;
 	$scope.side = operations[1];
 	$scope.accountId = acctId;
-	$scope.myaccount = acctId;
 	var expiry = new Date();
 	expiry.setDate(expiry.getDate() + 60);
 	$scope.expiry = expiry.toJSON();
@@ -62,9 +61,18 @@ app.controller('myCtrl', function($scope) {
 			$scope.$apply();
 		});
 	};
+	
+	$scope.listAccount = function(acctId) {
+		OANDA.account.listSpecific(acctId,function(response) {
+			$scope.myaccount = response;
+			acctId = response.accountId;
+			$scope.$apply();
+		});
+	};
 
 	//$scope.getAccount();
 	//$scope.createAccount();
+	$scope.listAccount(acctId);
 
 	$scope.openMarketOrder = function(qty, action) {
 		console.log(action + ":" + qty + ":" + currencyPair);
@@ -311,5 +319,28 @@ app.controller('myCtrl', function($scope) {
 		var returnv = Math.round(p * iPoint) / iPoint;
 		//console.log(p + ">" + returnv);
 		return returnv;
+	};
+
+	$scope.orderClosePopUp = function orderClosePopUp(event, orderID) {
+		console.log(orderID);
+		var el, x, y;
+
+		el = document.getElementById('PopUp');
+		if (window.event) {
+			x = window.event.clientX + document.documentElement.scrollLeft + document.body.scrollLeft;
+			y = window.event.clientY + document.documentElement.scrollTop +
+				+document.body.scrollTop;
+		}
+		else {
+			x = event.clientX + window.scrollX;
+			y = event.clientY + window.scrollY;
+		}
+		x -= 2;
+		y -= 2;
+		y = y + 15
+		el.style.left = x + "px";
+		el.style.top = y + "px";
+		el.style.display = "block";
+		document.getElementById('PopUpText').innerHTML = orderID;
 	};
 });

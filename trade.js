@@ -9,6 +9,7 @@ var pipDiff = 100;
 var gridOffset = 0;
 var OrderCount = [1, 5, 10, 15, 20, 50, 100];
 var PipCount = [10, 50, 100, 1000];
+var trailingStop = 0;
 
 if (!Array.prototype.some) {
 	Array.prototype.some = function(fun /*, thisp*/ ) {
@@ -61,9 +62,9 @@ app.controller('myCtrl', function($scope) {
 			$scope.$apply();
 		});
 	};
-	
+
 	$scope.listAccount = function(acctId) {
-		OANDA.account.listSpecific(acctId,function(response) {
+		OANDA.account.listSpecific(acctId, function(response) {
 			$scope.myaccount = response;
 			acctId = response.accountId;
 			$scope.$apply();
@@ -77,7 +78,7 @@ app.controller('myCtrl', function($scope) {
 	$scope.openMarketOrder = function(qty, action) {
 		console.log(action + ":" + qty + ":" + currencyPair);
 		OANDA.order.open(acctId, currencyPair, qty, action, 'market', {
-			'trailingStop': 100
+			'trailingStop': trailingStop
 		}, function(response) {
 			$scope.order = response;
 			$scope.listTrade();
@@ -87,7 +88,7 @@ app.controller('myCtrl', function($scope) {
 
 	$scope.openOrder = function(units, side, type, expiry, price) {
 		OANDA.order.open(acctId, currencyPair, qty, action, type, {
-			'trailingStop': 100
+			'trailingStop': trailingStop
 		}, function(response) {
 			$scope.order = response;
 			$scope.listTrade();
@@ -100,7 +101,7 @@ app.controller('myCtrl', function($scope) {
 		expiry.setDate(expiry.getDate() + 60);
 		var expiryDate = expiry.toJSON();
 		var tp = 0;
-		var ts = 50;
+		var ts = 0;
 		var price = $scope.getRate(currencyPair)[0];
 		var limitPrice = price.bid;
 		var Ask = price.ask;
@@ -300,6 +301,17 @@ app.controller('myCtrl', function($scope) {
 		});
 	};
 
+	$scope.closeOrder = function(orderID) {
+		console.log("closeOrder:" + orderID);
+		OANDA.order.close(acctId, orderID,
+			function(response) {
+				$scope.closeOrderResponse = response;
+				console.log("CloseOrder Response:" + $scope.closeOrderResponse.toJSON);
+				$scope.getOrders(currencyPair);
+				$scope.$apply();
+			});
+	};
+
 	$scope.getInstruments = function getInstruments(acctId) {
 		OANDA.rate.instruments(acctId, function(response) {
 			$scope.instruments = response.instruments;
@@ -321,8 +333,8 @@ app.controller('myCtrl', function($scope) {
 		return returnv;
 	};
 
-	$scope.orderClosePopUp = function orderClosePopUp(event, orderID) {
-		console.log(orderID);
+	$scope.orderClosePopUp = function(index,orderID) {
+		$scope.selectedRow = index;
 		var el, x, y;
 
 		el = document.getElementById('PopUp');
@@ -342,5 +354,9 @@ app.controller('myCtrl', function($scope) {
 		el.style.top = y + "px";
 		el.style.display = "block";
 		document.getElementById('PopUpText').innerHTML = orderID;
+		document.getElementById('OrdCloseButton').onclick = function() {
+			$scope.closeOrder(orderID);
+		};
+
 	};
 });

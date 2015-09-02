@@ -3,6 +3,11 @@
 <head>
     <link href="http://getbootstrap.com/2.3.2/assets/css/bootstrap.css" rel="stylesheet">
     <link href="http://getbootstrap.com/2.3.2/assets/css/bootstrap-responsive.css" rel="stylesheet">
+    <style>
+        .selected {
+            background-color: lightgreen;
+        }
+    </style>
 </head>
 
 <body ng-app="myApp" ng-controller="myCtrl as mc">
@@ -29,6 +34,7 @@
             <select ng-model="NoOfOrders" ng-options="o as o for o in OrderCount" bs-selectbox="no of orders"></select>
             Pip Difference
             <select ng-model="pipDiff" ng-options="p as p for p in PipCount" bs-selectbox="pip difference"></select>
+            <input type="number" name="input" ng-model="units" min="10" max="100" required/>        
         </form>
         <button class="btn" ng-click="openFixedPipOrder(currencyPair,NoOfOrders,side,pipDiff)">Open Fixed Pip Orders</button>
     </div>
@@ -64,7 +70,7 @@
     </div>
 
 
-    <div >
+    <div>
         <h2 ng-click="getOrders(currencyPair)">Orders</h2>
         <table class="table table-striped">
             <thead ng-click="getOrders(currencyPair)">
@@ -72,16 +78,18 @@
                 <th>Price</th>
                 <th>Type</th>
             </thead>
-            <tr ng-repeat="order in orders.orders" ng-click="orderClosePopUp('{{order.id}}')">
+            <tr ng-repeat="order in orders.orders | orderBy: 'price' as filtered_result track by order.price"  ng-class='{selected: $index==selectedRow}'>
                 <td>{{order.time | date:'MM/dd/yyyy h:mm:ss a'}}</td>
                 <td>{{order.units}}@{{order.price}}</td>
-                <td>{{order.type}}</td>
+                <td ng-mouseover='orderClosePopUp($index,order.id)' ng-mouseleave="document.getElementById('PopUp').style.display = 'none'">{{order.type}}</td>
+                <td ng-click='closeOrder(order.id)'>close</td>
             </tr>
         </table>
     </div>
 
-    <DIV id='PopUp' style='display: none; position: absolute; left: 100px; top: 50px; border: solid black 1px; padding: 10px; background-color: rgb(200,100,100); text-align: justify; font-size: 12px; width: 135px;' onmouseover="document.getElementById('PopUp').style.display = 'none' ">
+    <DIV id='PopUp' style='display: none; position: absolute; left: 100px; top: 50px; border: solid black 1px; padding: 10px; background-color: rgb(200,100,100); text-align: justify; font-size: 12px; width: 135px;'>
         <SPAN id='PopUpText'>TEXT</SPAN>
+        <button id='OrdCloseButton' class="btn">Close</button>
     </DIV>
 </body>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.js"></script>
@@ -89,4 +97,5 @@
 <script src="//cdnjs.cloudflare.com/ajax/libs/json2/20121008/json2.js"></script>
 <script src="oanda.js"></script>
 <script src="trade.js"></script>
+
 </html>

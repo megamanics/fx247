@@ -58,7 +58,7 @@
                 <th>Price</th>
                 <th>TP</th>
             </thead>
-            <tr ng-repeat="trade in trades.trades">
+            <tr ng-repeat="trade in trades.trades | orderBy: '-trade.price'">
                 <td>{{trade.units}}</td>
                 <td>{{trade.side}}</td>
                 <td>{{trade.instrument}}</td>
@@ -78,7 +78,7 @@
                 <th>Price</th>
                 <th>Type</th>
             </thead>
-            <tr ng-repeat="order in orders.orders | orderBy: 'price' as filtered_result track by order.price"  ng-class='{selected: $index==selectedRow}'>
+            <tr ng-repeat="order in orders.orders | orderBy: '-price' as filtered_result track by order.price"  ng-class='{selected: $index==selectedRow}'>
                 <td>{{order.time | date:'MM/dd/yyyy h:mm:ss a'}}</td>
                 <td>{{order.units}}@{{order.price}}</td>
                 <td ng-mouseover='orderClosePopUp($index,order.id)' ng-mouseleave="document.getElementById('PopUp').style.display = 'none'">{{order.type}}</td>

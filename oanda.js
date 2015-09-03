@@ -1,6 +1,7 @@
 var OANDA = OANDA || {};
 
 //OANDA.baseURL = OANDA.baseURL || "http://api-sandbox.oanda.com";
+//OANDA.baseURL = OANDA.baseURL || "https://api-fxtrade.oanda.com";
 OANDA.baseURL = OANDA.baseURL || "https://api-fxpractice.oanda.com";
 
 

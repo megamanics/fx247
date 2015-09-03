@@ -10,6 +10,7 @@ var gridOffset = 0;
 var OrderCount = [1, 5, 10, 15, 20, 50, 100];
 var PipCount = [10, 50, 100, 1000];
 var trailingStop = 0;
+var takeProfit = 100;
 
 if (!Array.prototype.some) {
 	Array.prototype.some = function(fun /*, thisp*/ ) {
@@ -123,12 +124,12 @@ app.controller('myCtrl', function($scope) {
 			if (side == $scope.operations[0]) {
 				traderate = startrate + i * Point * GridSize + gridOffset * Point;
 				rate = $scope.sround(traderate, Point, GridSize);
-				tp = rate + pipdiff * Point;
+				tp = rate + (takeProfit+pipdiff) * Point;
 			}
 			else {
 				traderate = startrate + i * Point * GridSize + gridOffset * Point;
 				rate = $scope.sround(traderate, Point, GridSize);
-				tp = rate - pipdiff * Point;
+				tp = rate - (takeProfit+pipdiff) * Point;
 			}
 			var orderExist = $scope.checkRateExist(rate);
 			if (orderExist) {

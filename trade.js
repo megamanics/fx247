@@ -46,13 +46,24 @@ app.controller('myCtrl', function($scope) {
 	var expiry = new Date();
 	expiry.setDate(expiry.getDate() + 60);
 	$scope.expiry = expiry.toJSON();
-	0.
+	
+	$scope.safeApply = function(fn) {
+		var phase = this.$root.$$phase;
+		if (phase == '$apply' || phase == '$digest') {
+			if (fn && (typeof(fn) === 'function')) {
+				fn();
+			}
+		}
+		else {
+			this.$apply(fn);
+		}
+	};
 
 	$scope.createAccount = function() {
 		OANDA.account.register('USD', function(response) {
 			$scope.myaccount = response;
 			acctId = response.accountId;
-			$scope.$apply();
+			$scope.safeApply();
 		});
 	};
 
@@ -60,7 +71,7 @@ app.controller('myCtrl', function($scope) {
 		OANDA.account.get(function(response) {
 			$scope.myaccount = response;
 			acctId = response.accountId;
-			$scope.$apply();
+			$scope.safeApply();
 		});
 	};
 
@@ -68,7 +79,7 @@ app.controller('myCtrl', function($scope) {
 		OANDA.account.listSpecific(acctId, function(response) {
 			$scope.myaccount = response;
 			acctId = response.accountId;
-			$scope.$apply();
+			$scope.safeApply();
 		});
 	};
 
@@ -83,7 +94,7 @@ app.controller('myCtrl', function($scope) {
 		}, function(response) {
 			$scope.order = response;
 			$scope.listTrade();
-			$scope.$apply();
+			$scope.safeApply();
 		});
 	};
 
@@ -93,7 +104,7 @@ app.controller('myCtrl', function($scope) {
 		}, function(response) {
 			$scope.order = response;
 			$scope.listTrade();
-			$scope.$apply();
+			$scope.safeApply();
 		});
 	};
 
@@ -124,12 +135,12 @@ app.controller('myCtrl', function($scope) {
 			if (side == $scope.operations[0]) {
 				traderate = startrate + i * Point * GridSize + gridOffset * Point;
 				rate = $scope.sround(traderate, Point, GridSize);
-				tp = rate + (takeProfit+pipdiff) * Point;
+				tp = rate + (takeProfit + pipdiff) * Point;
 			}
 			else {
 				traderate = startrate + i * Point * GridSize + gridOffset * Point;
 				rate = $scope.sround(traderate, Point, GridSize);
-				tp = rate - (takeProfit+pipdiff) * Point;
+				tp = rate - (takeProfit + pipdiff) * Point;
 			}
 			var orderExist = $scope.checkRateExist(rate);
 			if (orderExist) {
@@ -242,14 +253,14 @@ app.controller('myCtrl', function($scope) {
 			instrument: currencyPair
 		}, function(response) {
 			$scope.trades = response;
-			$scope.$apply();
+			$scope.safeApply();
 		});
 	};
 
 	$scope.getRate = function getRates(myCurrencyPair) {
 		OANDA.rate.quote([myCurrencyPair], function(response) {
 			$scope.rates = response.prices;
-			$scope.$apply();
+			$scope.safeApply();
 		});
 		return $scope.rates;
 	};
@@ -260,7 +271,7 @@ app.controller('myCtrl', function($scope) {
 			'count': "2"
 		}, function(response) {
 			$scope.historicalRates = response;
-			$scope.$apply();
+			$scope.safeApply();
 		});
 	};
 
@@ -273,7 +284,8 @@ app.controller('myCtrl', function($scope) {
 			}
 		}
 		var price = $scope.getRate(myCurrencyPair);
-		var Ask = price[0].ask;
+		if (price === undefined)
+			var Ask = price[0].ask;
 		var Bid = price[0].bid;
 		var Point = $scope.pip;
 		var minPipSize = Math.round((Ask - Bid) / Point);
@@ -288,7 +300,7 @@ app.controller('myCtrl', function($scope) {
 			'instrument': myCurrencyPair
 		}, function(response) {
 			$scope.transList = response;
-			$scope.$apply();
+			$scope.safeApply();
 		});
 	};
 
@@ -298,7 +310,7 @@ app.controller('myCtrl', function($scope) {
 			'instrument': myCurrencyPair
 		}, function(response) {
 			$scope.orders = response;
-			$scope.$apply();
+			$scope.safeApply();
 		});
 	};
 
@@ -309,14 +321,14 @@ app.controller('myCtrl', function($scope) {
 				$scope.closeOrderResponse = response;
 				console.log("CloseOrder Response:" + $scope.closeOrderResponse.toJSON);
 				$scope.getOrders(currencyPair);
-				$scope.$apply();
+				$scope.safeApply();
 			});
 	};
 
 	$scope.getInstruments = function getInstruments(acctId) {
 		OANDA.rate.instruments(acctId, function(response) {
 			$scope.instruments = response.instruments;
-			$scope.$apply();
+			$scope.safeApply();
 		});
 	};
 
@@ -334,7 +346,7 @@ app.controller('myCtrl', function($scope) {
 		return returnv;
 	};
 
-	$scope.orderClosePopUp = function(index,orderID) {
+	$scope.orderClosePopUp = function(index, orderID) {
 		$scope.selectedRow = index;
 		var el, x, y;
 

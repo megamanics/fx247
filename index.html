@@ -3,10 +3,15 @@
 <head>
     <link href="http://getbootstrap.com/2.3.2/assets/css/bootstrap.css" rel="stylesheet">
     <link href="http://getbootstrap.com/2.3.2/assets/css/bootstrap-responsive.css" rel="stylesheet">
+    <link rel="styleSheet" href="ui-grid.css"/>
     <style>
         .selected {
             background-color: lightgreen;
         }
+        .myGrid {
+            width: 900px;
+            height: 100px;
+          }
     </style>
 </head>
 
@@ -16,7 +21,7 @@
         <br> {{ myaccount }}
     </div>
     <br>
-    <select id="selectInst" ng-model="currencyPair" ng-options="o.instrument as o.displayName for o in instruments" bs-selectbox="Select Item" ng-change="updateCurrency(currencyPair)"></select>
+    <select id="selectInst" ng-model="currencyPair" ng-options="o.instrument as o.displayName for o in instruments" bs-selectbox="Select Item" ng-change="updateCurrency()"></select>
     <br>
     <select ng-model="side" ng-options="opr as opr for opr in operations" bs-selectbox="Buy or Sell"></select>
     <br>
@@ -36,44 +41,25 @@
             <select ng-model="pipDiff" ng-options="p as p for p in PipCount" bs-selectbox="pip difference"></select>
             <input type="number" name="input" ng-model="units" min="10" max="100" required/>        
         </form>
-        <button class="btn" ng-click="openFixedPipOrder(currencyPair,NoOfOrders,side,pipDiff)">Open Fixed Pip Orders</button>
+        <button class="btn" ng-click="openFixedPipOrder(NoOfOrders,side,pipDiff)">Open Fixed Pip Orders</button>
     </div>
-    <div ng-click="getRate(currencyPair)"> Rate
+    <div ng-click="getRate()"> Rate
         <br>
         <div class="col-sm-4">
             <ul class="list-group">
-                <li class="list-group-item" ng-repeat="rate in rates">{{rate.bid}}</li>
+                <li class="list-group-item" ng-repeat="rate in rates">{{rate.bid | currency:USD:5}}</li>
             </ul>
         </div>
     </div>
     <br>
-    <div ng-click="listTrade()">
-        <h3> All Trades</h3>
-        <table class="table table-striped">
-            <thead>
-                <th>Units</th>
-                <th>Side</th>
-                <th>Instrument</th>
-                <th>Time</th>
-                <th>Price</th>
-                <th>TP</th>
-            </thead>
-            <tr ng-repeat="trade in trades.trades | orderBy: '-trade.price'">
-                <td>{{trade.units}}</td>
-                <td>{{trade.side}}</td>
-                <td>{{trade.instrument}}</td>
-                <td>{{trade.time | date:'MM/dd/yyyy h:mm:ss a'}}</td>
-                <td>{{trade.price}}</td>
-                <td>{{trade.takeProfit|currency}}</td>
-            </tr>
-        </table>
-    </div>
-
-
-    <div>
-        <h2 ng-click="getOrders(currencyPair)">Orders</h2>
-        <table class="table table-striped">
-            <thead ng-click="getOrders(currencyPair)">
+    
+    <h3 ng-click="listTrade()"> All Trades</h3>
+    <div style="margin: 0 0 100 0" ui-grid="tGrid" class="myGrid"></div>
+    
+    <div style="margin: 100 0 0 0" >
+        <h2 ng-click="getOrders()">Orders</h2>
+        <table class="table table-striped" ng-hide="true">
+            <thead ng-click="getOrders()">
                 <th>Time</th>
                 <th>Price</th>
                 <th>Type</th>
@@ -86,6 +72,8 @@
             </tr>
         </table>
     </div>
+    
+    <div style="margin: 100 0 100 0" ui-grid="oGrid" class="myGrid"></div>
 
     <DIV id='PopUp' style='display: none; position: absolute; left: 100px; top: 50px; border: solid black 1px; padding: 10px; background-color: rgb(200,100,100); text-align: justify; font-size: 12px; width: 135px;'>
         <SPAN id='PopUpText'>TEXT</SPAN>
@@ -95,6 +83,7 @@
 <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.js"></script>
 <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.3/angular.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/json2/20121008/json2.js"></script>
+<script src="ui-grid.js"></script>
 <script src="oanda.js"></script>
 <script src="trade.js"></script>
 

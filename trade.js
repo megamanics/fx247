@@ -1,16 +1,16 @@
 // JavaScript File
 
-var app = angular.module('myApp', ['ui.grid']);
+var app = angular.module('myApp', []);
 var currencyPair;
 var acctId = 7655624;
 var operations = ["buy", "sell"];
-var NoOfOrders = 1;
 var pipDiff = 100;
 var gridOffset = 0;
-var OrderCount = [1, 5, 10, 15, 20, 50, 100];
+var NoOfOrders = 5;
+var OrderCount = [1, 5, 10, 15, 20, 50, 100,500];
 var PipCount = [10, 50, 100, 1000];
 var trailingStop = 0;
-var takeProfit = 100;
+var takeProfit = 250;
 
 if (!Array.prototype.some) {
 	Array.prototype.some = function(fun /*, thisp*/ ) {
@@ -33,11 +33,12 @@ $(document).ready(function($scope) {
 });
 
 
-app.controller('myCtrl', ['uiGridConstants', function($scope,uiGridConstants) {
+app.controller('myCtrl', function($scope) {
 
 	$scope.operations = operations;
 	$scope.OrderCount = OrderCount;
 	$scope.PipCount = PipCount;
+	currencyPair = $scope.currencyPair;
 	$scope.pipDiff = 10;
 	$scope.NoOfOrders = 5;
 	$scope.side = operations[1];
@@ -45,65 +46,6 @@ app.controller('myCtrl', ['uiGridConstants', function($scope,uiGridConstants) {
 	var expiry = new Date();
 	expiry.setDate(expiry.getDate() + 60);
 	$scope.expiry = expiry.toJSON();
-	$scope.tGrid = {
-		enableSorting: true,
-		showGridFooter: true,
-		columnDefs: [{
-			field: 'id',
-			maxWidth: 100,
-			visible: true
-		}, {
-			field: 'units',
-			maxWidth: 10,
-			visible: true
-		},{
-			field: 'time',
-			maxWidth: 250,
-			cellFilter: 'date:\'MM/dd/yyyy h:mm:ss a\'',
-			visible: true
-		},{
-			field: 'price',
-			cellFilter: 'currency:USD:5',
-			maxWidth: 100,
-			visible: true
-		}]
-	};
-
-	$scope.oGrid = {
-		enableSorting: true,
-		columnDefs: [{
-			field: 'id',
-			maxWidth: 100,
-			visible: true
-		}, {
-			field: 'units',
-			maxWidth: 10,
-			visible: true
-		},{
-			field: 'time',
-			maxWidth: 250,
-			cellFilter: 'date:\'MM/dd/yyyy h:mm:ss a\'',
-			visible: true
-		},{
-			field: 'price',
-			cellFilter: 'currency:USD:5',
-			maxWidth: 100,
-			aggregationType: uiGridConstants.aggregationTypes.avg,
-			visible: true
-		},{
-			field: 'takeProfit',
-			cellFilter: 'currency:USD:5',
-			maxWidth: 100,
-			visible: true
-		},{
-			field: 'type',
-			maxWidth: 50,
-			visible: true
-		}
-		
-		
-		]
-	};
 	
 	$scope.safeApply = function(fn) {
 		var phase = this.$root.$$phase;
@@ -166,13 +108,13 @@ app.controller('myCtrl', ['uiGridConstants', function($scope,uiGridConstants) {
 		});
 	};
 
-	$scope.openFixedPipOrder = function(units, side, pipdiff) {
+	$scope.openFixedPipOrder = function(currencyPair, steps, side, pipdiff) {
 		var expiry = new Date();
 		expiry.setDate(expiry.getDate() + 60);
 		var expiryDate = expiry.toJSON();
 		var tp = 0;
 		var ts = 0;
-		var price = $scope.getRate()[0];
+		var price = $scope.getRate(currencyPair)[0];
 		var limitPrice = price.bid;
 		var Ask = price.ask;
 		var Bid = price.bid;
@@ -181,7 +123,7 @@ app.controller('myCtrl', ['uiGridConstants', function($scope,uiGridConstants) {
 		console.log("Minimum Pip Size:" + minPipSize);
 		$scope.PipCount[0] = minPipSize;
 		var GridSize = pipdiff;
-		var GridSteps = units;
+		var GridSteps = steps;
 		var startrate = (Ask + Point * GridSize / 2) / Point / GridSize;
 		var k = startrate;
 		k = k * GridSize;
@@ -189,7 +131,7 @@ app.controller('myCtrl', ['uiGridConstants', function($scope,uiGridConstants) {
 		var traderate = startrate;
 		var rate;
 		console.log("start rate=" + startrate);
-		for (var i = 0; i < units; i++) {
+		for (var i = 0; i < GridSteps; i++) {
 			if (side == $scope.operations[0]) {
 				traderate = startrate + i * Point * GridSize + gridOffset * Point;
 				rate = $scope.sround(traderate, Point, GridSize);
@@ -208,25 +150,25 @@ app.controller('myCtrl', ['uiGridConstants', function($scope,uiGridConstants) {
 				console.log("[" + i + '] Trade opened @ ' + rate);
 				if (side == $scope.operations[0]) {
 					if (Ask < rate) {
-						$scope.openStopOrder(1, side, expiryDate, rate, tp, ts);
+						$scope.openStopOrder(NoOfOrders, side, expiryDate, rate, tp, ts);
 					}
 					else {
-						$scope.openLimitOrder(1, side, expiryDate, rate, tp, ts);
+						$scope.openLimitOrder(NoOfOrders, side, expiryDate, rate, tp, ts);
 					}
 				}
 				else {
 					console.log(price + ":" + rate);
 					if (Bid < rate) {
-						$scope.openLimitOrder(1, side, expiryDate, rate, tp, ts);
+						$scope.openLimitOrder(NoOfOrders, side, expiryDate, rate, tp, ts);
 					}
 					else {
-						$scope.openStopOrder(1, side, expiryDate, rate, tp, ts);
+						$scope.openStopOrder(NoOfOrders, side, expiryDate, rate, tp, ts);
 					}
 				}
 			}
 		}
 		setTimeout(function() {
-			$scope.getOrders();
+			$scope.getOrders(currencyPair);
 		}, 500);
 	};
 
@@ -241,14 +183,14 @@ app.controller('myCtrl', ['uiGridConstants', function($scope,uiGridConstants) {
 	};
 
 	$scope.checkTradeExist = function(p) {
-		if ($scope.tGrid.data != null) {
-			var len = $scope.tGrid.data.length;
+		if (($scope.trades != null) && ($scope.trades.trades != null)) {
+			var len = $scope.trades.trades.length;
 			if (len < 1) {
 				$scope.listTrade();
 			}
-			len = $scope.tGrid.data.length;
+			len = $scope.trades.trades.length;
 			if (len > 0) {
-				return $scope.checkExist(p, $scope.tGrid.data);
+				return $scope.checkExist(p, $scope.trades.trades);
 			}
 		}
 		return false;
@@ -264,7 +206,7 @@ app.controller('myCtrl', ['uiGridConstants', function($scope,uiGridConstants) {
 		if (($scope.orders != null) && ($scope.orders.orders != null)) {
 			var len = $scope.orders.orders.length;
 			if (len < 1) {
-				$scope.getOrders();
+				$scope.getOrders(currencyPair);
 			}
 			len = $scope.orders.orders.length;
 			if (len > 0) {
@@ -310,24 +252,21 @@ app.controller('myCtrl', ['uiGridConstants', function($scope,uiGridConstants) {
 		OANDA.trade.list(acctId, {
 			instrument: currencyPair
 		}, function(response) {
-			var trades = response;
-			if (trades.trades != null) {
-				$scope.tGrid.data = trades.trades;
-				$scope.safeApply();
-			}
+			$scope.trades = response;
+			$scope.safeApply();
 		});
 	};
 
-	$scope.getRate = function getRates() {
-		OANDA.rate.quote([currencyPair], function(response) {
+	$scope.getRate = function getRates(myCurrencyPair) {
+		OANDA.rate.quote([myCurrencyPair], function(response) {
 			$scope.rates = response.prices;
 			$scope.safeApply();
 		});
 		return $scope.rates;
 	};
 
-	$scope.getHistoricalRate = function getHistory() {
-		OANDA.rate.history(currencyPair, {
+	$scope.getHistoricalRate = function getHistory(myCurrencyPair) {
+		OANDA.rate.history(myCurrencyPair, {
 			'granularity': "S5",
 			'count': "2"
 		}, function(response) {
@@ -344,7 +283,7 @@ app.controller('myCtrl', ['uiGridConstants', function($scope,uiGridConstants) {
 				$scope.pip = $scope.instruments[i].pip;
 			}
 		}
-		var price = $scope.getRate();
+		var price = $scope.getRate(currencyPair);
 		if (price === undefined)
 			var Ask = price[0].ask;
 		var Bid = price[0].bid;
@@ -352,29 +291,25 @@ app.controller('myCtrl', ['uiGridConstants', function($scope,uiGridConstants) {
 		var minPipSize = Math.round((Ask - Bid) / Point);
 		console.log("Minimum Pip Size:" + minPipSize);
 		$scope.PipCount[0] = minPipSize;
-		$scope.getOrders();
+		$scope.getOrders(currencyPair);
 	};
 
-	$scope.getTransactionList = function transactionList() {
+	$scope.getTransactionList = function transactionList(myCurrencyPair) {
 		OANDA.transaction.list(acctId, {
 			'ids': '2347',
-			'instrument': currencyPair
+			'instrument': myCurrencyPair
 		}, function(response) {
 			$scope.transList = response;
 			$scope.safeApply();
 		});
 	};
 
-	$scope.getOrders = function orderList() {
+	$scope.getOrders = function orderList(myCurrencyPair) {
 		OANDA.order.list(acctId, {
 			'ids': '2347',
-			'instrument': currencyPair
+			'instrument': myCurrencyPair
 		}, function(response) {
 			$scope.orders = response;
-			if((response != null) && (response.orders!=null))
-			{
-				$scope.oGrid.data = response.orders;
-			}
 			$scope.safeApply();
 		});
 	};
@@ -437,4 +372,5 @@ app.controller('myCtrl', ['uiGridConstants', function($scope,uiGridConstants) {
 		};
 
 	};
-}]);
+});
+

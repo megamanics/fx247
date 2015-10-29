@@ -41,9 +41,9 @@
             <select ng-model="pipDiff" ng-options="p as p for p in PipCount" bs-selectbox="pip difference"></select>
             <input type="number" name="input" ng-model="units" min="10" max="100" required/>        
         </form>
-        <button class="btn" ng-click="openFixedPipOrder(NoOfOrders,side,pipDiff)">Open Fixed Pip Orders</button>
+        <button class="btn" ng-click="openFixedPipOrder(currencyPair,NoOfOrders,side,pipDiff)">Open Fixed Pip Orders</button>
     </div>
-    <div ng-click="getRate()"> Rate
+    <div ng-click="getRate(currencyPair)"> Rate
         <br>
         <div class="col-sm-4">
             <ul class="list-group">
@@ -52,21 +52,40 @@
         </div>
     </div>
     <br>
-    
-    <h3 ng-click="listTrade()"> All Trades</h3>
-    <div style="margin: 0 0 100 0" ui-grid="tGrid" class="myGrid"></div>
-    
-    <div style="margin: 100 0 0 0" >
-        <h2 ng-click="getOrders()">Orders</h2>
-        <table class="table table-striped" ng-hide="true">
-            <thead ng-click="getOrders()">
+    <div ng-click="listTrade()">
+        <h3> All Trades</h3>
+        <table class="table table-striped">
+            <thead>
+                <th>Units</th>
+                <th>Side</th>
+                <th>Instrument</th>
+                <th>Time</th>
+                <th>Price</th>
+                <th>TP</th>
+            </thead>
+            <tr ng-repeat="trade in trades.trades | orderBy: '-price' as filtered_result track by trade.id">
+                <td>{{trade.units}}</td>
+                <td>{{trade.side}}</td>
+                <td>{{trade.instrument}}</td>
+                <td>{{trade.time | date:'MM/dd/yyyy h:mm:ss a'}}</td>
+                <td>{{trade.price|currency:USD:5}}</td>
+                <td>{{trade.takeProfit|currency:USD:5}}</td>
+            </tr>
+        </table>
+    </div>
+
+
+    <div>
+        <h2 ng-click="getOrders(currencyPair)">Orders</h2>
+        <table class="table table-striped">
+            <thead ng-click="getOrders(currencyPair)">
                 <th>Time</th>
                 <th>Price</th>
                 <th>Type</th>
             </thead>
             <tr ng-repeat="order in orders.orders | orderBy: '-price' as filtered_result track by order.id"  ng-class='{selected: $index==selectedRow}'>
                 <td>{{order.time | date:'MM/dd/yyyy h:mm:ss a'}}</td>
-                <td>{{order.units}}@{{order.price}}</td>
+                <td>{{order.units}}@{{order.price|currency:USD:5}}</td>
                 <td ng-mouseover='orderClosePopUp($index,order.id)' ng-mouseleave="document.getElementById('PopUp').style.display = 'none'">{{order.type}}</td>
                 <td ng-click='closeOrder(order.id)'>close</td>
             </tr>
@@ -80,10 +99,9 @@
         <button id='OrdCloseButton' class="btn">Close</button>
     </DIV>
 </body>
-<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.js"></script>
-<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.3/angular.js"></script>
-<script src="//cdnjs.cloudflare.com/ajax/libs/json2/20121008/json2.js"></script>
-<script src="ui-grid.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.3/angular.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/json2/20121008/json2.js"></script>
 <script src="oanda.js"></script>
 <script src="trade.js"></script>
 

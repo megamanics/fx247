@@ -62,21 +62,14 @@
                         </form>
                         <button class="btn" ng-click="openFixedPipOrder(currencyPair,NoOfOrders,side,pipDiff)">Open Fixed Pip Orders</button>
                     </div>
-                </div>
-                <div class="row">
-                    <div id="error">
-                        <!-- Error messages will be displayed here -->
-                    </div>
-                    <div id="parent">
-                        <div id="chart">
-                            <!-- Candlestick chart will be displayed here -->
-                        </div>
-                        <div id="control">
-                            <!-- Line chart control will be dispalyed here -->
-                        </div>
+                    <div id='dashboard'>
+                        <div id='chart'></div>
+                        <div id='control'></div>
+                        <div id='error'></div>
                     </div>
                 </div>
             </div>
+
             <div class="col-md-4">
                 <div ng-click="listTrade() ">
                     <h3> All Trades</h3>
@@ -128,10 +121,12 @@
     </DIV>
 
 </body>
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.js "></script>
-<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.5/angular.js "></script>
-<script src="http://cdnjs.cloudflare.com/ajax/libs/json2/20121008/json2.js "></script>
-<script src="oanda.js "></script>
-<script src="trade.js "></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.5/angular.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/json2/20121008/json2.js"></script>
+<script src="https://www.google.com/jsapi"></script>
+<script src="oanda.js"></script>
+<script src="trade.js"></script>
+<script src="OCandlestickChart.js"></script>
 
 </html>

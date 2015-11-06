@@ -27,9 +27,27 @@ if (!Array.prototype.some) {
 	};
 }
 
+google.load("visualization", "1.1", {
+	packages: ["corechart, controls"]
+});
+
 $(document).ready(function($scope) {
 	//$("#selectInst").find("[value='string:USD_ZAR']").attr("selected", "selected");
 	$scope.currencyPair = "USD_ZAR";
+	var now = new Date();
+	var dashd = document.getElementById("dashboard");
+	var chartd = document.getElementById('chart');
+	var errord = document.getElementById('error');
+
+
+	var chart = new OCandlestickChart(dashd, chartd, errord);
+	//Will run chart with default values.
+	google.setOnLoadCallback(function() {
+		chart.render()
+	});
+	chart.setInstrument($scope.currencyPair);
+	chart.setGranularity("D");
+	chart.toggleStreaming(true);
 
 });
 

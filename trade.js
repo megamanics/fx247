@@ -7,7 +7,7 @@ var operations = ["buy", "sell"];
 var pipDiff = 100;
 var gridOffset = 0;
 var NoOfOrders = 5;
-var OrderCount = [1, 5, 10, 15, 20, 50, 100,500];
+var OrderCount = [1, 5, 10, 15, 20, 50, 100, 500];
 var PipCount = [10, 50, 100, 1000];
 var trailingStop = 0;
 var takeProfit = 250;
@@ -48,7 +48,7 @@ app.controller('myCtrl', function($scope) {
 	var expiry = new Date();
 	expiry.setDate(expiry.getDate() + 60);
 	$scope.expiry = expiry.toJSON();
-	
+
 	$scope.safeApply = function(fn) {
 		var phase = this.$root.$$phase;
 		if (phase == '$apply' || phase == '$digest') {
@@ -130,11 +130,16 @@ app.controller('myCtrl', function($scope) {
 		var k = startrate;
 		k = k * GridSize;
 		startrate = k * Point - GridSize * GridSteps / 2 * Point;
-		var traderate = startrate;
+		var traderate = (startrate < 0.1) ? 0.1 : startrate;
+		startrate = traderate;
+
 		var rate;
+
+		var isBuy = (side == $scope.operations[0]) ? true : false;
+
 		console.log("start rate=" + startrate);
 		for (var i = 0; i < GridSteps; i++) {
-			if (side == $scope.operations[0]) {
+			if (isBuy) {
 				traderate = startrate + i * Point * GridSize + gridOffset * Point;
 				rate = $scope.sround(traderate, Point, GridSize);
 				tp = rate + (takeProfit + pipdiff) * Point;
@@ -150,22 +155,16 @@ app.controller('myCtrl', function($scope) {
 			}
 			else {
 				console.log("[" + i + '] Trade opened @ ' + rate);
-				if (side == $scope.operations[0]) {
-					if (Ask < rate) {
-						$scope.openStopOrder(NoOfOrders, side, expiryDate, rate, tp, ts);
-					}
-					else {
-						$scope.openLimitOrder(NoOfOrders, side, expiryDate, rate, tp, ts);
-					}
+				if (isBuy) {
+					(Ask < rate) ?
+					$scope.openStopOrder($scope.units, side, expiryDate, rate, tp, ts):
+						$scope.openLimitOrder($scope.units, side, expiryDate, rate, tp, ts)
 				}
 				else {
 					console.log(price + ":" + rate);
-					if (Bid < rate) {
-						$scope.openLimitOrder(NoOfOrders, side, expiryDate, rate, tp, ts);
-					}
-					else {
-						$scope.openStopOrder(NoOfOrders, side, expiryDate, rate, tp, ts);
-					}
+					(Bid < rate) ?
+					$scope.openLimitOrder($scope.units, side, expiryDate, rate, tp, ts):
+						$scope.openStopOrder($scope.units, side, expiryDate, rate, tp, ts)
 				}
 			}
 		}
@@ -375,4 +374,3 @@ app.controller('myCtrl', function($scope) {
 
 	};
 });
-

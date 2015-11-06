@@ -1,108 +1,137 @@
 <html>
 
 <head>
-    <link href="http://getbootstrap.com/2.3.2/assets/css/bootstrap.css" rel="stylesheet">
-    <link href="http://getbootstrap.com/2.3.2/assets/css/bootstrap-responsive.css" rel="stylesheet">
-    <link rel="styleSheet" href="ui-grid.css"/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" integrity="sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==" crossorigin="anonymous">
+
+    <link rel="styleSheet" href="ui-grid.css" />
     <style>
         .selected {
             background-color: lightgreen;
         }
+        
         .myGrid {
             width: 900px;
             height: 100px;
-          }
+        }
     </style>
 </head>
 
 <body ng-app="myApp" ng-controller="myCtrl as mc">
+    <div class="container-fluid">
+        <div class="row">
+            <div id="leftSide" class="col-md-4">
+                <table class="table table-striped ">
+                    <tr ng-repeat="(k,v) in myaccount">
+                        <td>{{ k }}</td>
+                        <td>{{ v }}</td>
+                    </tr>
+                </table>
+                <div ng-click="getRate(currencyPair)" class="col-sm-4 oa-container">Rate
+                    <ul class="list-group ">
+                        <li class="list-group-item " ng-repeat="rate in rates ">{{rate.bid | currency:USD:5}}</li>
+                    </ul>
+                </div>
 
-    <div> Account Id
-        <br> {{ myaccount }}
-    </div>
-    <br>
-    <select id="selectInst" ng-model="currencyPair" ng-options="o.instrument as o.displayName for o in instruments" bs-selectbox="Select Item" ng-change="updateCurrency()"></select>
-    <br>
-    <select ng-model="side" ng-options="opr as opr for opr in operations" bs-selectbox="Buy or Sell"></select>
-    <br>
-    <div ng-click="openMarketOrder(1,side)" class="h1"> Click to Open Market Order
-        <div class="col-sm-4">
-            <ul class="list-group">
-                <li class="list-group-item" ng-repeat="o in order">{{o}}</li>
-            </ul>
+            </div>
+            <div class="col-md-4">
+                <div class="row">
+                    <select ng-model="currencyPair" ng-options="o.instrument as o.displayName for o in instruments" ng-change="updateCurrency()"></select>
+                    <select ng-model="side" ng-options="opr as opr for opr in operations"></select>
+                    <button class="btn" ng-click="openMarketOrder(1,side)" class="h1">Open Market Order</button>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <ul class="list-group">
+                                <li class="list-group-item" ng-repeat="o in order">{{o}}</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div id="createStrategy" class="oa-container" ng-controller="myCtrl as mc">
+                        <form>
+                            <div class="input-prepend">
+                                <select ng-model="NoOfOrders" ng-options="o as o for o in OrderCount"></select>
+                                <span class="add-on">NoOfOrders</span>
+                            </div>
+                            <div class="input-append">
+                                <select ng-model="pipDiff" ng-options="p as p for p in PipCount"></select>
+                                <span class="add-on">PipDiff</span>
+                            </div>
+                            <div class="input-append">
+                                <select ng-model="units" ng-options="o as o for o in OrderCount"></select>
+                                <span class="add-on">Units</span>
+                            </div>
+                        </form>
+                        <button class="btn" ng-click="openFixedPipOrder(currencyPair,NoOfOrders,side,pipDiff)">Open Fixed Pip Orders</button>
+                    </div>
+                </div>
+                <div class="row">
+                    <div id="error">
+                        <!-- Error messages will be displayed here -->
+                    </div>
+                    <div id="parent">
+                        <div id="chart">
+                            <!-- Candlestick chart will be displayed here -->
+                        </div>
+                        <div id="control">
+                            <!-- Line chart control will be dispalyed here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div ng-click="listTrade() ">
+                    <h3> All Trades</h3>
+                    <table class="table table-striped ">
+                        <thead>
+                            <th>Units</th>
+                            <th>Side</th>
+                            <th>Instrument</th>
+                            <th>Time</th>
+                            <th>Price</th>
+                            <th>TP</th>
+                        </thead>
+                        <tr ng-repeat="trade in trades.trades | orderBy: '-price' as filtered_result track by trade.id ">
+                            <td>{{trade.units}}</td>
+                            <td>{{trade.side}}</td>
+                            <td>{{trade.instrument}}</td>
+                            <td>{{trade.time | date:'MM/dd/yyyy h:mm:ss a'}}</td>
+                            <td>{{trade.price|currency:USD:5}}</td>
+                            <td>{{trade.takeProfit|currency:USD:5}}</td>
+                        </tr>
+                    </table>
+                </div>
+                <div>
+                    <h2 ng-click="getOrders(currencyPair) ">Orders</h2>
+                    <table class="table table-striped ">
+                        <thead ng-click="getOrders(currencyPair) ">
+                            <th>Time</th>
+                            <th>Price</th>
+                            <th>Type</th>
+                        </thead>
+                        <tr ng-repeat="order in orders.orders | orderBy: '-price' as filtered_result track by order.id " ng-class='{selected: $index==selectedRow}'>
+                            <td>{{order.time | date:'MM/dd/yyyy h:mm:ss a'}}</td>
+                            <td>{{order.units}}@{{order.price|currency:USD:5}}</td>
+                            <td ng-mouseover='orderClosePopUp($index,order.id)' ng-mouseleave="document.getElementById( 'PopUp').style.display='none' ">{{order.type}}</td>
+                            <td ng-click='closeOrder(order.id)'>close</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
-    <br>
-    <div ng-controller="myCtrl as mc">
-        <form>
-            No of Orders
-            <select ng-model="NoOfOrders" ng-options="o as o for o in OrderCount" bs-selectbox="no of orders"></select>
-            Pip Difference
-            <select ng-model="pipDiff" ng-options="p as p for p in PipCount" bs-selectbox="pip difference"></select>
-            <input type="number" name="input" ng-model="units" min="10" max="100" required/>        
-        </form>
-        <button class="btn" ng-click="openFixedPipOrder(currencyPair,NoOfOrders,side,pipDiff)">Open Fixed Pip Orders</button>
-    </div>
-    <div ng-click="getRate(currencyPair)"> Rate
-        <br>
-        <div class="col-sm-4">
-            <ul class="list-group">
-                <li class="list-group-item" ng-repeat="rate in rates">{{rate.bid | currency:USD:5}}</li>
-            </ul>
-        </div>
-    </div>
-    <br>
-    <div ng-click="listTrade()">
-        <h3> All Trades</h3>
-        <table class="table table-striped">
-            <thead>
-                <th>Units</th>
-                <th>Side</th>
-                <th>Instrument</th>
-                <th>Time</th>
-                <th>Price</th>
-                <th>TP</th>
-            </thead>
-            <tr ng-repeat="trade in trades.trades | orderBy: '-price' as filtered_result track by trade.id">
-                <td>{{trade.units}}</td>
-                <td>{{trade.side}}</td>
-                <td>{{trade.instrument}}</td>
-                <td>{{trade.time | date:'MM/dd/yyyy h:mm:ss a'}}</td>
-                <td>{{trade.price|currency:USD:5}}</td>
-                <td>{{trade.takeProfit|currency:USD:5}}</td>
-            </tr>
-        </table>
-    </div>
 
-
-    <div>
-        <h2 ng-click="getOrders(currencyPair)">Orders</h2>
-        <table class="table table-striped">
-            <thead ng-click="getOrders(currencyPair)">
-                <th>Time</th>
-                <th>Price</th>
-                <th>Type</th>
-            </thead>
-            <tr ng-repeat="order in orders.orders | orderBy: '-price' as filtered_result track by order.id"  ng-class='{selected: $index==selectedRow}'>
-                <td>{{order.time | date:'MM/dd/yyyy h:mm:ss a'}}</td>
-                <td>{{order.units}}@{{order.price|currency:USD:5}}</td>
-                <td ng-mouseover='orderClosePopUp($index,order.id)' ng-mouseleave="document.getElementById('PopUp').style.display = 'none'">{{order.type}}</td>
-                <td ng-click='closeOrder(order.id)'>close</td>
-            </tr>
-        </table>
     </div>
-    
-    <div style="margin: 100 0 100 0" ui-grid="oGrid" class="myGrid"></div>
+    <div style="margin: 100 0 100 0 " ui-grid="oGrid " class="myGrid "></div>
 
     <DIV id='PopUp' style='display: none; position: absolute; left: 100px; top: 50px; border: solid black 1px; padding: 10px; background-color: rgb(200,100,100); text-align: justify; font-size: 12px; width: 135px;'>
         <SPAN id='PopUpText'>TEXT</SPAN>
-        <button id='OrdCloseButton' class="btn">Close</button>
+        <button id='OrdCloseButton' class="btn ">Close</button>
     </DIV>
+
 </body>
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.js"></script>
-<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.3/angular.js"></script>
-<script src="http://cdnjs.cloudflare.com/ajax/libs/json2/20121008/json2.js"></script>
-<script src="oanda.js"></script>
-<script src="trade.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.js "></script>
+<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.5/angular.js "></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/json2/20121008/json2.js "></script>
+<script src="oanda.js "></script>
+<script src="trade.js "></script>
 
 </html>

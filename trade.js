@@ -28,7 +28,8 @@ if (!Array.prototype.some) {
 }
 
 $(document).ready(function($scope) {
-	$("#selectInst").find("[value='string:USD_ZAR']").attr("selected", "selected");
+	//$("#selectInst").find("[value='string:USD_ZAR']").attr("selected", "selected");
+	$scope.currencyPair = "USD_ZAR";
 
 });
 
@@ -39,8 +40,9 @@ app.controller('myCtrl', function($scope) {
 	$scope.OrderCount = OrderCount;
 	$scope.PipCount = PipCount;
 	currencyPair = $scope.currencyPair;
-	$scope.pipDiff = 10;
+	$scope.pipDiff = 100;
 	$scope.NoOfOrders = 5;
+	$scope.units = 5;
 	$scope.side = operations[1];
 	$scope.accountId = acctId;
 	var expiry = new Date();

@@ -11,6 +11,7 @@ var OrderCount = [1, 5, 10, 15, 20, 50, 100, 500];
 var PipCount = [10, 50, 100, 1000];
 var trailingStop = 0;
 var takeProfit = 250;
+var chart;
 
 if (!Array.prototype.some) {
 	Array.prototype.some = function(fun /*, thisp*/ ) {
@@ -34,21 +35,26 @@ google.load("visualization", "1.1", {
 $(document).ready(function($scope) {
 	//$("#selectInst").find("[value='string:USD_ZAR']").attr("selected", "selected");
 	$scope.currencyPair = "USD_ZAR";
-	var now = new Date();
+	var startTime = new Date();
+	startTime.setDate(startTime.getDate() - 30);
+	startTime.setHours(0,0,0);
 	var dashd = document.getElementById("dashboard");
 	var chartd = document.getElementById('chart');
+	var controld = document.getElementById('control');
 	var errord = document.getElementById('error');
 
-
-	var chart = new OCandlestickChart(dashd, chartd, errord);
+	var candleOpts = {
+		startTime: startTime,
+		granularity: "D",
+		instrument: $scope.currencyPair,
+		endTime: new Date()
+	};
+	
+	chart = new OCandlestickChart(dashd, chartd, controld, errord, candleOpts);
 	//Will run chart with default values.
 	google.setOnLoadCallback(function() {
 		chart.render()
 	});
-	chart.setInstrument($scope.currencyPair);
-	chart.setGranularity("D");
-	chart.toggleStreaming(true);
-
 });
 
 
@@ -311,6 +317,7 @@ app.controller('myCtrl', function($scope) {
 		console.log("Minimum Pip Size:" + minPipSize);
 		$scope.PipCount[0] = minPipSize;
 		$scope.getOrders(currencyPair);
+		chart.setInstrument(currencyPair);
 	};
 
 	$scope.getTransactionList = function transactionList(myCurrencyPair) {

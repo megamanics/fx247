@@ -281,6 +281,13 @@ app.controller('myCtrl', function($scope) {
 			$scope.safeApply();
 		});
 	};
+	
+	$scope.listPositions = function() {
+		OANDA.position.list(acctId, function(response) {
+			$scope.positions = response;
+			$scope.safeApply();
+		});
+	};
 
 	$scope.getRate = function getRates(myCurrencyPair) {
 		OANDA.rate.quote([myCurrencyPair], function(response) {
@@ -302,6 +309,8 @@ app.controller('myCtrl', function($scope) {
 
 	$scope.updateCurrency = function() {
 		currencyPair = $scope.currencyPair;
+		chart.setInstrument(currencyPair);
+		
 		for (var i in $scope.instruments) {
 			if ($scope.instruments[i].instrument == currencyPair) {
 				console.log(currencyPair + " pip value = " + $scope.instruments[i].pip);
@@ -317,7 +326,7 @@ app.controller('myCtrl', function($scope) {
 		console.log("Minimum Pip Size:" + minPipSize);
 		$scope.PipCount[0] = minPipSize;
 		$scope.getOrders(currencyPair);
-		chart.setInstrument(currencyPair);
+		
 	};
 
 	$scope.getTransactionList = function transactionList(myCurrencyPair) {

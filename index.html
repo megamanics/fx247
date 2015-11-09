@@ -19,7 +19,7 @@
 <body ng-app="myApp" ng-controller="myCtrl as mc">
     <div class="container-fluid">
         <div class="row">
-            <div id="leftSide" class="col-md-4">
+            <div id="leftSide" class="col-md-3">
                 <table class="table table-striped ">
                     <tr ng-repeat="(k,v) in myaccount">
                         <td>{{ k }}</td>
@@ -28,7 +28,7 @@
                 </table>
                 <div ng-click="getRate(currencyPair)" class="col-sm-4 oa-container">Rate
                     <ul class="list-group ">
-                        <li class="list-group-item " ng-repeat="rate in rates ">{{rate.bid | currency:USD:5}}</li>
+                        <li class="list-group-item " ng-repeat="rate in rates "><i class="icon-star"></i>{{rate.bid | currency:USD:5}}</li>
                     </ul>
                 </div>
 
@@ -37,11 +37,11 @@
                 <div class="row">
                     <select ng-model="currencyPair" ng-options="o.instrument as o.displayName for o in instruments" ng-change="updateCurrency()"></select>
                     <select ng-model="side" ng-options="opr as opr for opr in operations"></select>
-                    <button class="btn" ng-click="openMarketOrder(1,side)" class="h1">Open Market Order</button>
+                    <button class="btn btn-small btn-info" ng-click="openMarketOrder(1,side)" class="h1">Open Market Order</button>
                     <div class="row">
                         <div class="col-sm-12">
                             <ul class="list-group">
-                                <li class="list-group-item" ng-repeat="o in order">{{o}}</li>
+                                <li class="list-group-item" ng-repeat="o in order"><i class="icon-star"></i>{{o}}</li>
                             </ul>
                         </div>
                     </div>
@@ -60,7 +60,7 @@
                                 <span class="add-on">Units</span>
                             </div>
                         </form>
-                        <button class="btn" ng-click="openFixedPipOrder(currencyPair,NoOfOrders,side,pipDiff)">Open Fixed Pip Orders</button>
+                        <button class="btn btn-danger btn-small" ng-click="openFixedPipOrder(currencyPair,NoOfOrders,side,pipDiff)">Open Fixed Pip Orders</button>
                     </div>
                     <div id='dashboard'>
                         <div id='chart'></div>
@@ -70,10 +70,10 @@
                 </div>
             </div>
 
-            <div class="col-md-4">
+            <div class="col-md-5">
                 <div ng-click="listTrade() ">
                     <h3> All Trades</h3>
-                    <table class="table table-striped ">
+                    <table class="table table-striped table-condensed">
                         <thead>
                             <th>Units</th>
                             <th>Side</th>
@@ -94,7 +94,7 @@
                 </div>
                 <div>
                     <h2 ng-click="getOrders(currencyPair) ">Orders</h2>
-                    <table class="table table-striped ">
+                    <table class="table table-striped table-condensed">
                         <thead ng-click="getOrders(currencyPair) ">
                             <th>Time</th>
                             <th>Price</th>
@@ -105,6 +105,23 @@
                             <td>{{order.units}}@{{order.price|currency:USD:5}}</td>
                             <td ng-mouseover='orderClosePopUp($index,order.id)' ng-mouseleave="document.getElementById( 'PopUp').style.display='none' ">{{order.type}}</td>
                             <td ng-click='closeOrder(order.id)'>close</td>
+                        </tr>
+                    </table>
+                </div>
+                 <div>
+                    <h2 ng-click="listPositions() ">Positions</h2>
+                    <table class="table table-striped table-condensed">
+                        <thead ng-click="listPositions() ">
+                            <th>Instrument</th>
+                            <th>Side</th>
+                            <th>Exposure</th>
+                            <th>Action</th>
+                        </thead>
+                        <tr ng-repeat="p in positions.positions">
+                            <td>{{p.instrument}}</td>
+                            <td>{{p.side}}</td>
+                            <td>{{p.units}}@{{p.avgPrice|currency:USD:5}}</td>
+                            <td ng-click='closePosition(p.id)'>close</td>
                         </tr>
                     </table>
                 </div>
